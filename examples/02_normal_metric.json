@@ -1,0 +1,9 @@
+{
+  "segmentId": "I5-NB-42",
+  "windowStartMs": 1710000010000,
+  "windowEndMs": 1710000020000,
+  "count": 8,
+  "avgSpeedMps": 23.5,
+  "minSpeedMps": 22.0,
+  "maxSpeedMps": 24.6
+}

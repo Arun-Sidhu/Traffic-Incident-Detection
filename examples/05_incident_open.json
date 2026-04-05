@@ -1,0 +1,11 @@
+{
+  "incidentId": "9d4f7f8a-3b6b-45e3-92f7-0b7df79f2d0a",
+  "segmentId": "I5-NB-42",
+  "status": "open",
+  "startTs": 1710000030000,
+  "endTs": 0,
+  "severity": 3.3,
+  "baselineSpeedMps": 21.92,
+  "observedSpeedMps": 14.0,
+  "observedCount": 9
+}

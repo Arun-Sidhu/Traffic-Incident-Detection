@@ -1,0 +1,322 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Traffic Incident Detection Dashboard</title>
+  <script src="/static/echarts.min.js"></script>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: #121933;
+      --panel-2: #192347;
+      --text: #e8ecf7;
+      --muted: #a7b1cc;
+      --border: rgba(255, 255, 255, 0.08);
+      --good: #31c48d;
+      --warn: #f59e0b;
+      --bad: #ef4444;
+      --shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: linear-gradient(180deg, #0b1020 0%, #0d1530 100%);
+      color: var(--text);
+    }
+
+    .container { max-width: 1480px; margin: 0 auto; padding: 24px; }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .title-wrap h1 {
+      margin: 0;
+      font-size: 30px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .title-wrap p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .pill, button, select {
+      background: var(--panel);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-size: 14px;
+    }
+
+    button { cursor: pointer; }
+    button:hover { background: var(--panel-2); }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .card {
+      background: rgba(18, 25, 51, 0.88);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+      backdrop-filter: blur(10px);
+    }
+
+    .metric-label { color: var(--muted); font-size: 13px; margin-bottom: 10px; }
+    .metric-value { font-size: 34px; font-weight: 800; letter-spacing: -0.03em; }
+    .metric-sub { margin-top: 8px; font-size: 13px; color: var(--muted); }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .panel-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .panel-title h2 { margin: 0; font-size: 17px; font-weight: 700; }
+    .panel-title span { color: var(--muted); font-size: 13px; }
+
+    .chart { width: 100%; height: 360px; }
+    .chart-short { width: 100%; height: 320px; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+
+    thead th {
+      text-align: left;
+      color: var(--muted);
+      font-weight: 600;
+      border-bottom: 1px solid var(--border);
+      padding: 12px 10px;
+      position: sticky;
+      top: 0;
+      background: rgba(18, 25, 51, 0.98);
+    }
+
+    tbody td {
+      padding: 12px 10px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    tbody tr:hover { background: rgba(255, 255, 255, 0.03); }
+
+    .table-wrap {
+      max-height: 360px;
+      overflow: auto;
+      border-radius: 12px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid transparent;
+    }
+
+    .badge-open {
+      background: rgba(239, 68, 68, 0.16);
+      color: #fecaca;
+      border-color: rgba(239, 68, 68, 0.3);
+    }
+
+    .badge-closed {
+      background: rgba(49, 196, 141, 0.16);
+      color: #bbf7d0;
+      border-color: rgba(49, 196, 141, 0.3);
+    }
+
+    .badge-mid {
+      background: rgba(245, 158, 11, 0.16);
+      color: #fde68a;
+      border-color: rgba(245, 158, 11, 0.3);
+    }
+
+    .footer-note { color: var(--muted); font-size: 13px; margin-top: 6px; }
+    .empty { color: var(--muted); padding: 18px 0; }
+
+    @media (max-width: 1200px) {
+      .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .grid, .grid-2 { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 720px) {
+      .cards { grid-template-columns: 1fr; }
+      .container { padding: 16px; }
+      .metric-value { font-size: 28px; }
+      .chart, .chart-short { height: 280px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="topbar">
+      <div class="title-wrap">
+        <h1>Traffic Incident Detection</h1>
+        <p>Live streaming dashboard powered by FastAPI, Postgres, and ECharts</p>
+      </div>
+
+      <div class="controls">
+        <div class="pill" id="lastUpdated">Last updated: --</div>
+        <select id="segmentSelect"></select>
+        <button id="refreshBtn">Refresh now</button>
+      </div>
+    </div>
+
+    <section class="cards">
+      <div class="card">
+        <div class="metric-label">Active incidents</div>
+        <div class="metric-value" id="activeIncidents">0</div>
+        <div class="metric-sub" id="activeIncidentsSub">Currently open incidents</div>
+      </div>
+
+      <div class="card">
+        <div class="metric-label">Average severity</div>
+        <div class="metric-value" id="avgSeverity">0.0</div>
+        <div class="metric-sub" id="avgSeveritySub">Across active incidents</div>
+      </div>
+
+      <div class="card">
+        <div class="metric-label">Most affected segment</div>
+        <div class="metric-value" id="topSegment">--</div>
+        <div class="metric-sub" id="topSegmentSub">Highest incident count in history</div>
+      </div>
+
+      <div class="card">
+        <div class="metric-label">Opened in last 5 min</div>
+        <div class="metric-value" id="opened5m">0</div>
+        <div class="metric-sub" id="opened5mSub">Newly detected incidents</div>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="card">
+        <div class="panel-title">
+          <h2>Incidents over time</h2>
+          <span>Distinct incidents from history</span>
+        </div>
+        <div id="incidentsOverTimeChart" class="chart"></div>
+      </div>
+
+      <div class="card">
+        <div class="panel-title">
+          <h2>Severity distribution</h2>
+          <span>Active incidents only</span>
+        </div>
+        <div id="severityDistributionChart" class="chart"></div>
+      </div>
+    </section>
+
+    <section class="grid-2">
+      <div class="card">
+        <div class="panel-title">
+          <h2>Top segments by incident count</h2>
+          <span>Distinct incidents by segment</span>
+        </div>
+        <div id="topSegmentsChart" class="chart-short"></div>
+      </div>
+
+      <div class="card">
+        <div class="panel-title">
+          <h2>Current vs baseline speed</h2>
+          <span id="selectedSegmentLabel">Selected segment</span>
+        </div>
+        <div id="speedComparisonChart" class="chart-short"></div>
+      </div>
+    </section>
+
+    <section class="grid-2">
+      <div class="card">
+        <div class="panel-title">
+          <h2>Current incidents</h2>
+          <span id="currentCountLabel">0 rows</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Segment</th>
+                <th>Severity</th>
+                <th>Status</th>
+                <th>Current speed</th>
+                <th>Baseline speed</th>
+                <th>Opened</th>
+              </tr>
+            </thead>
+            <tbody id="currentIncidentsBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="panel-title">
+          <h2>Recent history</h2>
+          <span id="historyCountLabel">0 incidents</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Segment</th>
+                <th>Severity</th>
+                <th>Status</th>
+                <th>Opened</th>
+                <th>Closed</th>
+              </tr>
+            </thead>
+            <tbody id="historyBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <div class="footer-note">Auto-refresh every 10 seconds.</div>
+  </div>
+
+  <script type="module" src="/static/dashboard.js"></script>
+</body>
+</html>
