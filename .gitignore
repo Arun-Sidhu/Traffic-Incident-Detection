@@ -1,0 +1,55 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
+.coverage
+coverage.xml
+htmlcov/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Environment files
+.env
+.env.*
+
+# IDE files
+.vscode/
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+
+# Logs
+*.log
+
+# Java and Maven
+*.class
+*.jar
+*.war
+*.ear
+target/
+
+# Build output
+build/
+dist/
+
+# Local data and runtime files
+flink-checkpoints/
+
+# Docker overrides
+docker-compose.override.yml
+
+# Misc local files
+.python-version
