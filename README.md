@@ -1,4 +1,4 @@
-# traffic_incident_detection
+# Traffic incident Detection
 
 This project is a local end to end traffic incident detection system.
 
